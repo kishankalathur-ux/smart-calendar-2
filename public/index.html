@@ -91,7 +91,6 @@ button:hover { background: #6a85ff; }
 
 <body>
 
-<!-- TABS -->
 <div class="header">
   <div class="tab active" onclick="showTab(0)">Add Account</div>
   <div class="tab" onclick="showTab(1)">Add Availability</div>
@@ -102,7 +101,6 @@ button:hover { background: #6a85ff; }
 
 <div class="container">
 
-<!-- 1 USERS -->
 <div class="panel active">
   <h2>Accounts</h2>
   <input id="newUser" placeholder="Username"/>
@@ -110,41 +108,31 @@ button:hover { background: #6a85ff; }
   <div class="list" id="userList"></div>
 </div>
 
-<!-- 2 AVAILABILITY -->
 <div class="panel">
   <h2>Availability</h2>
-
   <select id="userSelect"></select>
   <input type="date" id="availDate"/>
   <input type="number" id="start" placeholder="Start (0-23)"/>
   <input type="number" id="end" placeholder="End (0-23)"/>
   <button onclick="addAvailability()">Add</button>
-
   <div class="list" id="availList"></div>
 </div>
 
-<!-- 3 EVENTS -->
 <div class="panel">
   <h2>Events</h2>
-
   <input id="eventTitle" placeholder="Title"/>
   <input type="date" id="eventDate"/>
   <textarea id="eventDesc" placeholder="Details"></textarea>
-
   <button onclick="addEvent()">Create</button>
-
   <div class="list" id="eventList"></div>
 </div>
 
-<!-- 4 CALENDAR -->
 <div class="panel">
   <h2>Monthly Calendar</h2>
   <div id="calendar" class="calendar"></div>
-
   <div class="list" id="dayInfo"></div>
 </div>
 
-<!-- 5 DELETE -->
 <div class="panel">
   <h2>Delete Data</h2>
 
@@ -164,186 +152,6 @@ button:hover { background: #6a85ff; }
 
 </div>
 
-<script>
-let users = JSON.parse(localStorage.getItem("users")||"[]");
-let availability = JSON.parse(localStorage.getItem("availability")||"{}");
-let events = JSON.parse(localStorage.getItem("events")||"[]");
-
-function save(){
-  localStorage.setItem("users",JSON.stringify(users));
-  localStorage.setItem("availability",JSON.stringify(availability));
-  localStorage.setItem("events",JSON.stringify(events));
-}
-
-/* ---------------- TABS ---------------- */
-function showTab(i){
-  document.querySelectorAll(".tab").forEach((t,idx)=>{
-    t.classList.toggle("active", idx===i);
-  });
-  document.querySelectorAll(".panel").forEach((p,idx)=>{
-    p.classList.toggle("active", idx===i);
-  });
-}
-
-/* ---------------- USERS ---------------- */
-function addUser(){
-  let u=document.getElementById("newUser").value;
-  if(!u) return;
-  users.push(u);
-  save();
-  renderUsers();
-}
-
-function renderUsers(){
-  let sel=document.getElementById("userSelect");
-  let list=document.getElementById("userList");
-
-  sel.innerHTML="";
-  list.innerHTML="";
-
-  users.forEach(u=>{
-    sel.innerHTML+=`<option>${u}</option>`;
-    list.innerHTML+=`<div>${u}</div>`;
-  });
-}
-
-/* ---------------- AVAILABILITY ---------------- */
-function addAvailability(){
-  let u=document.getElementById("userSelect").value;
-  let d=document.getElementById("availDate").value;
-  let s=+document.getElementById("start").value;
-  let e=+document.getElementById("end").value;
-
-  if(!availability[d]) availability[d]={};
-  if(!availability[d][u]) availability[d][u]=[];
-
-  availability[d][u].push({start:s,end:e});
-
-  save();
-  renderAvailability();
-}
-
-function renderAvailability(){
-  let box=document.getElementById("availList");
-  box.innerHTML="";
-
-  for(let d in availability){
-    for(let u in availability[d]){
-      availability[d][u].forEach(a=>{
-        box.innerHTML+=`<div>${u} ${d} (${a.start}-${a.end})</div>`;
-      });
-    }
-  }
-}
-
-/* ---------------- EVENTS ---------------- */
-function addEvent(){
-  events.push({
-    title:document.getElementById("eventTitle").value,
-    date:document.getElementById("eventDate").value,
-    desc:document.getElementById("eventDesc").value
-  });
-  save();
-  renderEvents();
-}
-
-function renderEvents(){
-  let box=document.getElementById("eventList");
-  box.innerHTML="";
-  events.forEach(e=>{
-    box.innerHTML+=`<div><b>${e.title}</b> ${e.date}</div>`;
-  });
-}
-
-/* ---------------- CALENDAR FIXED ---------------- */
-function renderCalendar(){
-  let cal=document.getElementById("calendar");
-  cal.innerHTML="";
-
-  let now=new Date();
-  let year=now.getFullYear();
-  let month=now.getMonth();
-
-  let first=new Date(year,month,1).getDay();
-  let days=new Date(year,month+1,0).getDate();
-
-  for(let i=0;i<first;i++){
-    cal.appendChild(document.createElement("div"));
-  }
-
-  for(let d=1;d<=days;d++){
-    let div=document.createElement("div");
-    div.className="day";
-
-    let date=`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-
-    div.innerHTML=d;
-
-    div.onclick=()=>{
-      showDay(date);
-    };
-
-    cal.appendChild(div);
-  }
-}
-
-/* ---------------- DAY INFO ---------------- */
-function showDay(date){
-  let box=document.getElementById("dayInfo");
-  box.innerHTML=`<h3>${date}</h3>`;
-
-  (events.filter(e=>e.date===date)).forEach(e=>{
-    box.innerHTML+=`<div>📌 ${e.title}</div>`;
-  });
-
-  if(availability[date]){
-    box.innerHTML+=`<hr><b>Availability:</b>`;
-    for(let u in availability[date]){
-      availability[date][u].forEach(a=>{
-        box.innerHTML+=`<div>${u}: ${a.start}-${a.end}</div>`;
-      });
-    }
-  }
-}
-
-/* ---------------- DELETE ---------------- */
-function deleteEvent(){
-  let t=document.getElementById("delEvent").value;
-  events=events.filter(e=>e.title!==t);
-  save();
-  renderEvents();
-}
-
-function deleteUser(){
-  let u=document.getElementById("delUser").value;
-  users=users.filter(x=>x!==u);
-
-  for(let d in availability){
-    delete availability[d][u];
-  }
-
-  save();
-  renderUsers();
-}
-
-function deleteAvailability(){
-  let d=document.getElementById("delDate").value;
-  let u=document.getElementById("delUser2").value;
-
-  if(availability[d]){
-    delete availability[d][u];
-  }
-
-  save();
-  renderAvailability();
-}
-
-/* ---------------- INIT ---------------- */
-renderUsers();
-renderAvailability();
-renderEvents();
-renderCalendar();
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
