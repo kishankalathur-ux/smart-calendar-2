@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Smart Calendar</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #121212;
+  color: #e6e6e6;
+}
+
+.header {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: #1e1e1e;
+}
+
+.tab {
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.tab.active { background: #4a6cff; }
+
+.container { padding: 20px; }
+
+.panel {
+  display: none;
+  max-width: 650px;
+  margin: auto;
+  background: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.panel.active { display: block; }
+
+input, select, textarea, button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: #2a2a2a;
+  border: none;
+  color: white;
+  border-radius: 6px;
+}
+
+button {
+  background: #4a6cff;
+  cursor: pointer;
+}
+
+button:hover { background: #6a85ff; }
+
+.list {
+  margin-top: 10px;
+  background: #2a2a2a;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.day {
+  background: #2a2a2a;
+  padding: 10px;
+  text-align: center;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.day:hover { background: #3d5afe; }
+
+.delete {
+  background: crimson;
+  margin-top: 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div class="tab active" onclick="showTab(0)">Add Account</div>
+  <div class="tab" onclick="showTab(1)">Add Availability</div>
+  <div class="tab" onclick="showTab(2)">Add Event</div>
+  <div class="tab" onclick="showTab(3)">View Calendar</div>
+  <div class="tab" onclick="showTab(4)">Delete</div>
+</div>
+
+<div class="container">
+
+<div class="panel active">
+  <h2>Accounts</h2>
+  <input id="newUser" placeholder="Username"/>
+  <button onclick="addUser()">Add User</button>
+  <div class="list" id="userList"></div>
+</div>
+
+<div class="panel">
+  <h2>Availability</h2>
+  <select id="userSelect"></select>
+  <input type="date" id="availDate"/>
+  <input type="number" id="start" placeholder="Start (0-23)"/>
+  <input type="number" id="end" placeholder="End (0-23)"/>
+  <button onclick="addAvailability()">Add</button>
+  <div class="list" id="availList"></div>
+</div>
+
+<div class="panel">
+  <h2>Events</h2>
+  <input id="eventTitle" placeholder="Title"/>
+  <input type="date" id="eventDate"/>
+  <textarea id="eventDesc" placeholder="Details"></textarea>
+  <button onclick="addEvent()">Create</button>
+  <div class="list" id="eventList"></div>
+</div>
+
+<div class="panel">
+  <h2>Monthly Calendar</h2>
+  <div id="calendar" class="calendar"></div>
+  <div class="list" id="dayInfo"></div>
+</div>
+
+<div class="panel">
+  <h2>Delete Data</h2>
+
+  <h3>Delete Event</h3>
+  <input id="delEvent" placeholder="Event title"/>
+  <button onclick="deleteEvent()">Delete Event</button>
+
+  <h3>Delete User</h3>
+  <input id="delUser" placeholder="Username"/>
+  <button onclick="deleteUser()">Delete User</button>
+
+  <h3>Delete Availability</h3>
+  <input type="date" id="delDate"/>
+  <input id="delUser2" placeholder="Username"/>
+  <button onclick="deleteAvailability()">Delete Availability</button>
+</div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
